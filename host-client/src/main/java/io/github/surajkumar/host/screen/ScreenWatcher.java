@@ -32,6 +32,12 @@ public class ScreenWatcher {
                     .appendInt(row)
                     .appendInt(image.length)
                     .appendBytes(image));
+            try {
+                // Otherwise we're transmitting too quickly
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

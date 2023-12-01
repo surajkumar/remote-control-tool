@@ -1,5 +1,6 @@
 package io.github.surajkumar.client;
 
+import io.github.surajkumar.host.screen.Grid;
 import io.github.surajkumar.host.screen.IndexedImage;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
@@ -26,6 +27,8 @@ public class RemoteViewer extends JPanel {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        this.setDoubleBuffered(true);
+
         MouseEventListener mouseEventListener = new MouseEventListener(this, socket);
         this.addMouseListener(mouseEventListener);
         this.addMouseMotionListener(mouseEventListener);
@@ -42,13 +45,13 @@ public class RemoteViewer extends JPanel {
         }
         if(indexedImage != null) {
 
-            int cellWidth = getWidth() / 12;
-            int cellHeight = getHeight() / 12;
+            int cellWidth = getWidth() / Grid.COLUMNS;
+            int cellHeight = getHeight() / Grid.ROWS;
             int drawX = indexedImage.getColIndex() * cellWidth;
             int drawY = indexedImage.getRowIndex() * cellHeight;
 
             this.getGraphics().drawImage(
-                    indexedImage.getImage(),
+                    resizeImage(indexedImage.getImage(), cellWidth, cellHeight),
                     drawX,
                     drawY,
                     cellWidth,

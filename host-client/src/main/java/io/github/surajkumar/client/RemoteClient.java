@@ -66,7 +66,7 @@ public class RemoteClient extends AbstractVerticle {
                             displayScreen = new RemoteViewer(socket);
                         }
 
-                        displayScreen.draw(buffer.getBuffer(0, expectedLen));
+                        displayScreen.draw(buffer.getBuffer(4, expectedLen));
                         buffer = Buffer.buffer().appendBuffer(buffer.getBuffer(expectedLen, buffer.length()));
                         if (buffer.length() > 0) {
                             expectedLen = buffer.getInt(0);

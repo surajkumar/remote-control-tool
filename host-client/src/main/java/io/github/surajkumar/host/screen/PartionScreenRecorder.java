@@ -78,19 +78,19 @@ public class PartionScreenRecorder implements Runnable {
         List<IndexedImage> changedImages = new ArrayList<>();
 
         if(previousFrame != null) {
-            BufferedImage[][] split = splitImage(currentFrame, 12, 12);
-            BufferedImage[][] previous = splitImage(previousFrame, 12, 12);
-            for (int i = 0; i < 12; i++) {
-                for (int j = 0; j < 12; j++) {
+            BufferedImage[][] split = splitImage(currentFrame, Grid.ROWS, Grid.COLUMNS);
+            BufferedImage[][] previous = splitImage(previousFrame, Grid.ROWS, Grid.COLUMNS);
+            for (int i = 0; i < Grid.ROWS; i++) {
+                for (int j = 0; j < Grid.COLUMNS; j++) {
                     if (imageChanged(split[i][j], previous[i][j])) {
                         changedImages.add(new IndexedImage(i, j, split[i][j]));
                     }
                 }
             }
         } else {
-            BufferedImage[][] split = splitImage(currentFrame, 12, 12);
-            for (int i = 0; i < 12; i++) {
-                for (int j = 0; j < 12; j++) {
+            BufferedImage[][] split = splitImage(currentFrame, Grid.ROWS, Grid.COLUMNS);
+            for (int i = 0; i < Grid.ROWS; i++) {
+                for (int j = 0; j < Grid.COLUMNS; j++) {
                     changedImages.add(new IndexedImage(i, j, split[i][j]));
                 }
             }
