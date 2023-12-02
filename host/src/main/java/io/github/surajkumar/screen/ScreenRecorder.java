@@ -25,10 +25,8 @@ import javax.imageio.stream.ImageOutputStream;
 public class ScreenRecorder implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScreenRecorder.class);
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
-    private final ScreenRecorderConfiguration configuration = new ScreenRecorderConfiguration(
-            "TIFF",
-            "LZW",
-            0.50F);
+    private final ScreenRecorderConfiguration configuration =
+            new ScreenRecorderConfiguration("TIFF", "LZW", 0.50F);
     private final List<ScreenWatcher> watchers;
     private final Robot robot;
     private final Rectangle screenBounds;
@@ -49,7 +47,8 @@ public class ScreenRecorder implements Runnable {
         this.screenBounds = screenBounds;
         screenBounds.setRect(0, 0, screenBounds.getWidth() - 2, screenBounds.getHeight() - 2);
         this.running = false;
-        this.visualizer = new RecordingVisualizer(new Dimension(Monitor.getBoundsForMonitor(0).getSize()));
+        this.visualizer =
+                new RecordingVisualizer(new Dimension(Monitor.getBoundsForMonitor(0).getSize()));
         this.grid = new Grid();
     }
 
@@ -58,7 +57,8 @@ public class ScreenRecorder implements Runnable {
 
         Iterator<ImageWriter> it = ImageIO.getImageWritersByFormatName(configuration.imageFormat());
         if (!it.hasNext()) {
-            throw new UnsupportedOperationException(configuration.imageFormat() + " format not supported.");
+            throw new UnsupportedOperationException(
+                    configuration.imageFormat() + " format not supported.");
         }
         writer = it.next();
         param = writer.getDefaultWriteParam();
@@ -77,15 +77,17 @@ public class ScreenRecorder implements Runnable {
         }
 
         List<IndexedImage> changedImages = new ArrayList<>();
-        BufferedImage[][] split = ImageUtils.splitImage(currentFrame, grid.getRows(), grid.getColumns());
-        if(previousFrame == null) {
+        BufferedImage[][] split =
+                ImageUtils.splitImage(currentFrame, grid.getRows(), grid.getColumns());
+        if (previousFrame == null) {
             for (int i = 0; i < grid.getRows(); i++) {
                 for (int j = 0; j < grid.getColumns(); j++) {
                     changedImages.add(new IndexedImage(split[i][j], i, j));
                 }
             }
         } else {
-            BufferedImage[][] previous = ImageUtils.splitImage(previousFrame, grid.getRows(), grid.getColumns());
+            BufferedImage[][] previous =
+                    ImageUtils.splitImage(previousFrame, grid.getRows(), grid.getColumns());
             for (int i = 0; i < grid.getRows(); i++) {
                 for (int j = 0; j < grid.getColumns(); j++) {
                     if (ImageUtils.isImageDifferent(split[i][j], previous[i][j])) {
@@ -98,15 +100,17 @@ public class ScreenRecorder implements Runnable {
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             for (IndexedImage indexedImage : changedImages) {
                 BufferedImage bufferedImage = indexedImage.image();
-                try(ImageOutputStream payload = ImageIO.createImageOutputStream(buffer)) {
+                try (ImageOutputStream payload = ImageIO.createImageOutputStream(buffer)) {
                     writer.setOutput(payload);
                     writer.write(null, new IIOImage(bufferedImage, null, null), param);
                     payload.flush();
-                    watchers.forEach(watcher -> watcher.receiveScreenshot(
-                            buffer.toByteArray(),
-                            indexedImage.row(),
-                            indexedImage.column(),
-                            grid));
+                    watchers.forEach(
+                            watcher ->
+                                    watcher.receiveScreenshot(
+                                            buffer.toByteArray(),
+                                            indexedImage.row(),
+                                            indexedImage.column(),
+                                            grid));
                     buffer.reset();
                 }
             }
@@ -121,7 +125,8 @@ public class ScreenRecorder implements Runnable {
 
     public void start() {
         running = true;
-        scheduledFuture = EXECUTOR.scheduleAtFixedRate(this, 0, framesPerSecond, TimeUnit.MILLISECONDS);
+        scheduledFuture =
+                EXECUTOR.scheduleAtFixedRate(this, 0, framesPerSecond, TimeUnit.MILLISECONDS);
         visualizer.show();
     }
 

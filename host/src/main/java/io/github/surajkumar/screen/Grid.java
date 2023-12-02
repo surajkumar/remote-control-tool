@@ -1,7 +1,7 @@
 package io.github.surajkumar.screen;
 
 public class Grid {
-    private static final int DEFAULT_ROWS= 4;
+    private static final int DEFAULT_ROWS = 4;
     private static final int DEFAULT_COLUMNS = 2;
     private int rows;
     private int columns;
