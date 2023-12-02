@@ -3,11 +3,6 @@ package io.github.surajkumar.host.screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +14,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 public class PartionScreenRecorder implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PartionScreenRecorder.class);
@@ -45,18 +46,14 @@ public class PartionScreenRecorder implements Runnable {
         this.robot = new Robot();
         this.screenBounds = screenBounds;
         // Crop the visualizer from the screenshot
-        screenBounds.setRect(
-                1,
-                1,
-                screenBounds.getWidth() - 2,
-                screenBounds.getHeight() - 2);
+        screenBounds.setRect(1, 1, screenBounds.getWidth() - 2, screenBounds.getHeight() - 2);
         this.running = false;
         this.visualizer = new Visualizer(new Dimension(Monitor.getBoundsForMonitor(0).getSize()));
     }
 
     private void setupWriter() {
         Iterator<ImageWriter> it = ImageIO.getImageWritersByFormatName(IMAGE_FORMAT);
-        if(!it.hasNext()) {
+        if (!it.hasNext()) {
             throw new UnsupportedOperationException(IMAGE_FORMAT + " format not supported.");
         }
         writer = it.next();
@@ -71,13 +68,13 @@ public class PartionScreenRecorder implements Runnable {
     @Override
     public void run() {
         BufferedImage currentFrame = robot.createScreenCapture(screenBounds);
-        if(!imageChanged(currentFrame, previousFrame)) {
+        if (!imageChanged(currentFrame, previousFrame)) {
             return;
         }
 
         List<IndexedImage> changedImages = new ArrayList<>();
 
-        if(previousFrame != null) {
+        if (previousFrame != null) {
             BufferedImage[][] split = splitImage(currentFrame, Grid.ROWS, Grid.COLUMNS);
             BufferedImage[][] previous = splitImage(previousFrame, Grid.ROWS, Grid.COLUMNS);
             for (int i = 0; i < Grid.ROWS; i++) {
@@ -96,31 +93,30 @@ public class PartionScreenRecorder implements Runnable {
             }
         }
 
+        for (IndexedImage indexedImage : changedImages) {
+            try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                int column = indexedImage.getColIndex();
+                int row = indexedImage.getRowIndex();
+                BufferedImage bufferedImage = indexedImage.getImage();
 
+                ImageOutputStream payload = ImageIO.createImageOutputStream(buffer);
+                writer.setOutput(payload);
 
-            for(IndexedImage indexedImage : changedImages) {
-                try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-                    int column = indexedImage.getColIndex();
-                    int row = indexedImage.getRowIndex();
-                    BufferedImage bufferedImage = indexedImage.getImage();
-
-                    ImageOutputStream payload = ImageIO.createImageOutputStream(buffer);
-                    writer.setOutput(payload);
-
-                    try {
-                        writer.write(null, new IIOImage(bufferedImage, null, null), param);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    payload.flush();
-                    watchers.forEach(watcher -> watcher.receiveScreenshot(buffer.toByteArray(), column, row));
+                try {
+                    writer.write(null, new IIOImage(bufferedImage, null, null), param);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
 
-            previousFrame = currentFrame;
+                payload.flush();
+                watchers.forEach(
+                        watcher -> watcher.receiveScreenshot(buffer.toByteArray(), column, row));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        previousFrame = currentFrame;
     }
 
     public static BufferedImage[][] splitImage(BufferedImage image, int rows, int cols) {
@@ -159,7 +155,8 @@ public class PartionScreenRecorder implements Runnable {
 
     public void start() {
         running = true;
-        scheduledFuture = EXECUTOR.scheduleAtFixedRate(this, 0, framesPerSecond, TimeUnit.MILLISECONDS);
+        scheduledFuture =
+                EXECUTOR.scheduleAtFixedRate(this, 0, framesPerSecond, TimeUnit.MILLISECONDS);
         visualizer.show();
     }
 

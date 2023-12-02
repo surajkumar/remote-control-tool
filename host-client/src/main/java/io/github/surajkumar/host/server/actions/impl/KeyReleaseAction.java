@@ -15,7 +15,7 @@ public class KeyReleaseAction implements Action {
 
     @Override
     public Buffer handle(Buffer request, WatcherPermissions permissions) {
-        if(permissions.canSendKeyboardInputs()) {
+        if (permissions.canSendKeyboardInputs()) {
             robot.keyRelease(request.getInt(0));
         }
         return null;

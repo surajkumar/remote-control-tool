@@ -15,7 +15,7 @@ public class MouseMoveEvent implements Action {
 
     @Override
     public Buffer handle(Buffer request, WatcherPermissions permissions) {
-        if(permissions.canSendMouseMovements()) {
+        if (permissions.canSendMouseMovements()) {
             int x = request.getInt(0);
             int y = request.getInt(4);
             robot.mouseMove(x, y);

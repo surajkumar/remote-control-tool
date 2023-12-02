@@ -16,16 +16,16 @@ public class HostServer extends AbstractVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) {
-        NetServer server = vertx.createNetServer(new NetServerOptions()
-                .setPort(port)
-                .setHost(host));
+        NetServer server =
+                vertx.createNetServer(new NetServerOptions().setPort(port).setHost(host));
         server.connectHandler(new HostServerHandler(0));
-        server.listen(res -> {
-            if (res.failed()) {
-                startPromise.fail(res.cause());
-            } else {
-                startPromise.complete();
-            }
-        });
+        server.listen(
+                res -> {
+                    if (res.failed()) {
+                        startPromise.fail(res.cause());
+                    } else {
+                        startPromise.complete();
+                    }
+                });
     }
 }

@@ -4,16 +4,18 @@ import io.github.surajkumar.host.server.actions.OperationCode;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 
-import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+
+import javax.swing.*;
 
 public class MouseEventListener implements MouseListener, MouseMotionListener {
     private static final double HOST_WIDTH = 2560;
     private static final double HOST_HEIGHT = 1440;
     private final JPanel panel;
     private final NetSocket socket;
+
     public MouseEventListener(JPanel panel, NetSocket socket) {
         this.panel = panel;
         this.socket = socket;

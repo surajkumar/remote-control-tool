@@ -11,10 +11,6 @@ import io.vertx.core.net.NetSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
 public class RemoteClient extends AbstractVerticle {
@@ -34,54 +30,74 @@ public class RemoteClient extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) {
         NetClient client = vertx.createNetClient();
-        client.connect(port, host, res -> {
-            if (res.succeeded()) {
-                NetSocket socket = res.result();
+        client.connect(
+                port,
+                host,
+                res -> {
+                    if (res.succeeded()) {
+                        NetSocket socket = res.result();
 
-                HandshakeMessage handshakeMessage = new HandshakeMessage(getComputerName(), "hello");
-                Buffer handshakeBuffer = Buffer.buffer();
-                handshakeBuffer.appendInt(handshakeMessage.name().length());
-                handshakeBuffer.appendInt(handshakeMessage.password().length());
-                handshakeBuffer.appendString(handshakeMessage.name(), "utf-8");
-                handshakeBuffer.appendString(handshakeMessage.password(), "utf-8");
-                socket.write(handshakeBuffer);
+                        HandshakeMessage handshakeMessage =
+                                new HandshakeMessage(getComputerName(), "hello");
+                        Buffer handshakeBuffer = Buffer.buffer();
+                        handshakeBuffer.appendInt(handshakeMessage.name().length());
+                        handshakeBuffer.appendInt(handshakeMessage.password().length());
+                        handshakeBuffer.appendString(handshakeMessage.name(), "utf-8");
+                        handshakeBuffer.appendString(handshakeMessage.password(), "utf-8");
+                        socket.write(handshakeBuffer);
 
-                socket.handler(b -> {
-                    LOGGER.info("Received data. Buffer length: {}, Expected length: {}", buffer.length(), expectedLen);
+                        socket.handler(
+                                b -> {
+                                    LOGGER.info(
+                                            "Received data. Buffer length: {}, Expected length: {}",
+                                            buffer.length(),
+                                            expectedLen);
 
-                    if (expectedLen == 0) {
-                        expectedLen = b.getInt(0);
-                        LOGGER.info("Expecting a message of length: {}", expectedLen);
-                    }
+                                    if (expectedLen == 0) {
+                                        expectedLen = b.getInt(0);
+                                        LOGGER.info(
+                                                "Expecting a message of length: {}", expectedLen);
+                                    }
 
-                    if (buffer.length() < expectedLen) {
-                        buffer.appendBuffer(b);
-                        LOGGER.info("Appending data to buffer. New buffer length: {}", buffer.length());
-                    }
+                                    if (buffer.length() < expectedLen) {
+                                        buffer.appendBuffer(b);
+                                        LOGGER.info(
+                                                "Appending data to buffer. New buffer length: {}",
+                                                buffer.length());
+                                    }
 
-                    if (buffer.length() >= expectedLen) {
-                        LOGGER.info("Received a complete message. Buffer length: {}", buffer.length());
+                                    if (buffer.length() >= expectedLen) {
+                                        LOGGER.info(
+                                                "Received a complete message. Buffer length: {}",
+                                                buffer.length());
 
-                        if (displayScreen == null) {
-                            displayScreen = new RemoteViewer(socket);
-                        }
+                                        if (displayScreen == null) {
+                                            displayScreen = new RemoteViewer(socket);
+                                        }
 
-                        displayScreen.draw(buffer.getBuffer(4, expectedLen));
-                        buffer = Buffer.buffer().appendBuffer(buffer.getBuffer(expectedLen, buffer.length()));
-                        if (buffer.length() > 0) {
-                            expectedLen = buffer.getInt(0);
-                        } else {
-                            clearBuffer();
-                            expectedLen = 0;
-                        }
-                        LOGGER.info("Processed message. New expected length: {}", expectedLen);
+                                        displayScreen.draw(buffer.getBuffer(4, expectedLen));
+                                        buffer =
+                                                Buffer.buffer()
+                                                        .appendBuffer(
+                                                                buffer.getBuffer(
+                                                                        expectedLen,
+                                                                        buffer.length()));
+                                        if (buffer.length() > 0) {
+                                            expectedLen = buffer.getInt(0);
+                                        } else {
+                                            clearBuffer();
+                                            expectedLen = 0;
+                                        }
+                                        LOGGER.info(
+                                                "Processed message. New expected length: {}",
+                                                expectedLen);
+                                    }
+                                });
+
+                    } else {
+                        LOGGER.info("Failed to connect to the server: " + res.cause().getMessage());
                     }
                 });
-
-            } else {
-                LOGGER.info("Failed to connect to the server: " + res.cause().getMessage());
-            }
-        });
     }
 
     private static String getComputerName() {

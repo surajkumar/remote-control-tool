@@ -12,15 +12,14 @@ public class FileRequestAction implements Action {
 
     @Override
     public Buffer handle(Buffer request, WatcherPermissions permissions) {
-        if(permissions.isDownloadFiles()) {
+        if (permissions.isDownloadFiles()) {
             System.out.println("File Sending");
             String fileName = request.getString(0, request.length());
             File file = new File(fileName);
             if (file.exists() && file.canRead()) {
                 try {
                     byte[] data = Files.readAllBytes(file.toPath());
-                    return Buffer
-                            .buffer()
+                    return Buffer.buffer()
                             .appendInt(0) // opcode
                             .appendInt(file.getName().length())
                             .appendInt(data.length)

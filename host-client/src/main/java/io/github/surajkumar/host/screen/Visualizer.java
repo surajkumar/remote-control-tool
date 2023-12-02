@@ -1,7 +1,8 @@
 package io.github.surajkumar.host.screen;
 
-import javax.swing.*;
 import java.awt.*;
+
+import javax.swing.*;
 
 public class Visualizer {
     private final JFrame frame;

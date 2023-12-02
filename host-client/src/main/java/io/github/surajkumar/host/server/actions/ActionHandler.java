@@ -2,26 +2,28 @@ package io.github.surajkumar.host.server.actions;
 
 import io.github.surajkumar.host.server.actions.impl.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ActionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionHandler.class);
     private static final Map<OperationCode, Action> ACTIONS = new HashMap<>();
     private static final DoNothingAction DO_NOTHING_ACTION = new DoNothingAction();
+
     static {
         Robot robot = null;
         try {
             robot = new Robot();
         } catch (Exception e) {
-            LOGGER.error("Unable to create Robot so not external input will work: " + e.getMessage());
+            LOGGER.error(
+                    "Unable to create Robot so not external input will work: " + e.getMessage());
         }
 
-        if(robot != null) {
+        if (robot != null) {
             ACTIONS.put(OperationCode.MOUSE_MOVE, DO_NOTHING_ACTION);
             ACTIONS.put(OperationCode.MOUSE_PRESS, new MousePressAction(robot));
             ACTIONS.put(OperationCode.MOUSE_RELEASE, new MouseReleaseAction(robot));

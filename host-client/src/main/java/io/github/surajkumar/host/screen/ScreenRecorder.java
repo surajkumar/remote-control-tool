@@ -1,13 +1,6 @@
 package io.github.surajkumar.host.screen;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +11,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 public class ScreenRecorder implements Runnable {
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
@@ -40,11 +39,7 @@ public class ScreenRecorder implements Runnable {
         this.robot = new Robot();
         this.screenBounds = screenBounds;
         // Crop the visualizer from the screenshot
-        screenBounds.setRect(
-                1,
-                1,
-                screenBounds.getWidth() - 2,
-                screenBounds.getHeight() - 2);
+        screenBounds.setRect(1, 1, screenBounds.getWidth() - 2, screenBounds.getHeight() - 2);
         this.running = false;
         this.visualizer = new Visualizer(new Dimension(Monitor.getBoundsForMonitor(0).getSize()));
     }
@@ -54,7 +49,7 @@ public class ScreenRecorder implements Runnable {
 
     private void setupWriter() {
         Iterator<ImageWriter> it = ImageIO.getImageWritersByFormatName(IMAGE_FORMAT);
-        if(!it.hasNext()) {
+        if (!it.hasNext()) {
             throw new UnsupportedOperationException(IMAGE_FORMAT + " format not supported.");
         }
         writer = it.next();
@@ -72,7 +67,7 @@ public class ScreenRecorder implements Runnable {
     public void run() {
         BufferedImage image = robot.createScreenCapture(screenBounds);
 
-        if(!imageChanged(image)) {
+        if (!imageChanged(image)) {
             return;
         }
 
@@ -120,7 +115,8 @@ public class ScreenRecorder implements Runnable {
 
     public void start() {
         running = true;
-        scheduledFuture = EXECUTOR.scheduleAtFixedRate(this, 0, framesPerSecond, TimeUnit.MILLISECONDS);
+        scheduledFuture =
+                EXECUTOR.scheduleAtFixedRate(this, 0, framesPerSecond, TimeUnit.MILLISECONDS);
         visualizer.show();
     }
 

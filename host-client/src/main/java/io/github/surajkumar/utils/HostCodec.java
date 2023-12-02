@@ -6,6 +6,7 @@ import java.util.Map;
 public class HostCodec {
     private static final String HOST_PATTERN = "^[0-9.]+$";
     private static final Map<Integer, String> ALPHABET = new HashMap<>();
+
     static {
         int index = 0;
         ALPHABET.put(index++, "a");
@@ -32,25 +33,26 @@ public class HostCodec {
     }
 
     public static String encode(String address, int port) {
-        if(!address.matches(HOST_PATTERN)) {
-            if(address.equals("localhost")) {
+        if (!address.matches(HOST_PATTERN)) {
+            if (address.equals("localhost")) {
                 return address;
             }
-            throw new IllegalArgumentException("Invalid address format: Must only contains numbers or dots");
+            throw new IllegalArgumentException(
+                    "Invalid address format: Must only contains numbers or dots");
         }
-        String addressAndPort = address + "#" +port;
+        String addressAndPort = address + "#" + port;
         StringBuilder sb = new StringBuilder();
         int previous = 0;
         int index = 0;
-        for(String digit : addressAndPort.split("")) {
-            if(digit.equals("#")) {
+        for (String digit : addressAndPort.split("")) {
+            if (digit.equals("#")) {
                 sb.append("-");
                 continue;
             }
-            if(index != 0 && index % 4 == 0) {
+            if (index != 0 && index % 4 == 0) {
                 sb.append("-");
             }
-            if(digit.equals(".")) {
+            if (digit.equals(".")) {
                 int idx = (ALPHABET.size() - 1) - previous;
                 String dotValue = ALPHABET.get(idx);
                 sb.append(dotValue);
@@ -66,19 +68,19 @@ public class HostCodec {
     }
 
     public static String decode(String encodedAddress) {
-        if(encodedAddress.equals("localhost")) {
+        if (encodedAddress.equals("localhost")) {
             return encodedAddress;
         }
         StringBuilder sb = new StringBuilder();
-        for(String s : encodedAddress.split("")) {
-            if(s.equals("-")) {
+        for (String s : encodedAddress.split("")) {
+            if (s.equals("-")) {
                 continue;
             }
             for (Map.Entry<Integer, String> entry : ALPHABET.entrySet()) {
                 int k = entry.getKey();
                 String v = entry.getValue();
-                if(s.equals(v)) {
-                    if(k >= 10) {
+                if (s.equals(v)) {
+                    if (k >= 10) {
                         sb.append(".");
                     } else {
                         sb.append(k);

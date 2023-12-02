@@ -16,7 +16,7 @@ public class CtrlAltDelAction implements Action {
 
     @Override
     public Buffer handle(Buffer request, WatcherPermissions permissions) {
-        if(permissions.canSendKeyboardInputs()) {
+        if (permissions.canSendKeyboardInputs()) {
             int ctrl = KeyEvent.VK_CONTROL;
             int alt = KeyEvent.VK_ALT;
             int del = KeyEvent.VK_DELETE;

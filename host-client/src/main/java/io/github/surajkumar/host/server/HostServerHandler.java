@@ -7,10 +7,10 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 
-import java.awt.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.*;
 
 public class HostServerHandler implements Handler<NetSocket> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HostServerHandler.class);
@@ -28,40 +28,49 @@ public class HostServerHandler implements Handler<NetSocket> {
 
     @Override
     public void handle(NetSocket socket) {
-        socket.closeHandler(handler -> {
-            recorder.removeWatcher(getWatcher(socket));
-            if(recorder.getWatchers().isEmpty()) {
-                LOGGER.info("No clients currently connected, stopping screen capture until a new client connects");
-                recorder.stop();
-            }
-        });
-        socket.handler(buffer -> {
-            if(!containsSocket(socket)) {
-                HandshakeMessage handshakeMessage = decodeHandshake(buffer);
-                if(AuthenticationHandler.authenticate(handshakeMessage.password())) {
-                    LOGGER.info(handshakeMessage.name() + " has connected successfully");
-                    recorder.registerWatcher(new ScreenWatcher(socket, new WatcherPermissions()));
-                    if(!recorder.isRunning()) {
-                        LOGGER.info("Screen capture has started");
-                        recorder.start();
+        socket.closeHandler(
+                handler -> {
+                    recorder.removeWatcher(getWatcher(socket));
+                    if (recorder.getWatchers().isEmpty()) {
+                        LOGGER.info(
+                                "No clients currently connected, stopping screen capture until a"
+                                        + " new client connects");
+                        recorder.stop();
                     }
-                } else {
-                    LOGGER.warn(handshakeMessage.name() + " has entered an invalid password");
-                }
-            } else {
-                int operation = buffer.getInt(0);
-                Action action = ActionHandler.getActionFor(operation);
-                if(action != null) {
-                    LOGGER.trace("Received " + action);
-                    Buffer response = action.handle(buffer.getBuffer(4, buffer.length()), getWatcher(socket).getPermissions());
-                    if(response != null) {
-                        socket.write(response);
+                });
+        socket.handler(
+                buffer -> {
+                    if (!containsSocket(socket)) {
+                        HandshakeMessage handshakeMessage = decodeHandshake(buffer);
+                        if (AuthenticationHandler.authenticate(handshakeMessage.password())) {
+                            LOGGER.info(handshakeMessage.name() + " has connected successfully");
+                            recorder.registerWatcher(
+                                    new ScreenWatcher(socket, new WatcherPermissions()));
+                            if (!recorder.isRunning()) {
+                                LOGGER.info("Screen capture has started");
+                                recorder.start();
+                            }
+                        } else {
+                            LOGGER.warn(
+                                    handshakeMessage.name() + " has entered an invalid password");
+                        }
+                    } else {
+                        int operation = buffer.getInt(0);
+                        Action action = ActionHandler.getActionFor(operation);
+                        if (action != null) {
+                            LOGGER.trace("Received " + action);
+                            Buffer response =
+                                    action.handle(
+                                            buffer.getBuffer(4, buffer.length()),
+                                            getWatcher(socket).getPermissions());
+                            if (response != null) {
+                                socket.write(response);
+                            }
+                        } else {
+                            LOGGER.trace("Unknown action received: " + operation);
+                        }
                     }
-                } else {
-                    LOGGER.trace("Unknown action received: " + operation);
-                }
-            }
-        });
+                });
     }
 
     private HandshakeMessage decodeHandshake(Buffer buffer) {
@@ -78,7 +87,7 @@ public class HostServerHandler implements Handler<NetSocket> {
 
     public boolean containsSocket(NetSocket socket) {
         for (ScreenWatcher watcher : recorder.getWatchers()) {
-            if(watcher.getSocket() == socket) {
+            if (watcher.getSocket() == socket) {
                 return true;
             }
         }
@@ -87,7 +96,7 @@ public class HostServerHandler implements Handler<NetSocket> {
 
     public ScreenWatcher getWatcher(NetSocket socket) {
         for (ScreenWatcher watcher : recorder.getWatchers()) {
-            if(watcher.getSocket() == socket) {
+            if (watcher.getSocket() == socket) {
                 return watcher;
             }
         }

@@ -15,7 +15,7 @@ public class KeyPressAction implements Action {
 
     @Override
     public Buffer handle(Buffer request, WatcherPermissions permissions) {
-        if(permissions.canSendKeyboardInputs()) {
+        if (permissions.canSendKeyboardInputs()) {
             robot.keyPress(request.getInt(0));
         }
         return null;
