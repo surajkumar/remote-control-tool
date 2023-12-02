@@ -1,5 +1,6 @@
 package io.github.surajkumar;
 
+import io.github.surajkumar.screen.Monitor;
 import io.github.surajkumar.server.AddressInfo;
 import io.github.surajkumar.server.HostCodec;
 import io.github.surajkumar.server.HostServer;
@@ -27,6 +28,13 @@ public class Main {
         if (args.length > 0) {
             try {
                 monitor = Integer.parseInt(args[0]);
+                if (Monitor.getNumberOfMonitors() > monitor) {
+                    LOGGER.error(
+                            "Invalid monitor {} the number must be between 0 and {}",
+                            monitor,
+                            Monitor.getNumberOfMonitors());
+                    return;
+                }
             } catch (Exception e) {
                 monitor = 0;
                 LOGGER.warn("Unknown arg {}, defaulting to monitor 0", Arrays.toString(args));
@@ -34,8 +42,6 @@ public class Main {
         } else {
             monitor = 0;
         }
-
-        monitor = 1;
 
         vertx.deployVerticle(
                 new HostServer(HOST, PORT, monitor),
