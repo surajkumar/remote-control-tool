@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>host-client</module>
+        <module>client</module>
+        <module>host</module>
     </modules>
 
     <properties>
