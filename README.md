@@ -16,18 +16,8 @@ The goal of the project is to recreate a Teamviewer or AnyDesk type-clone and op
 An optimized rendering mechanism. The way the project is being designed is that frames are captured and encoded
 into the [TIFF](https://en.wikipedia.org/wiki/TIFF) image format and then compressed using [LZW](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Welch).
 
-The initial screenshot is then split into 12x12 segments. There on, any changes that occur within a segment, only those
-changes are sent to the client. This achieves really low latency. 
-
-An experiment has been done by sending the entire image. On a 2K display, an individual frame can be around 0.5 MB in size.
-This works and may be acceptable to some users if this was a simple streaming application however in a "remote control" scenario,
-there's a 1-2 second delay between inputs which can feel jarring. An experiment of reducing the image size to 1080x720 which reduces the image to around 0.2MB.
-This works great, it's super snappy and is like-real-time but the image becomes blurry when scaled up and appears tiny if you have a really large monitor.
-
-The current work in progress is sending segments. Each segment (on a 2K display) turns out to be around 213x120 which means tiny images sizes that can be
-transmitted over the network super quickly. When there is little motion, the image feels ultra-real-time. If there is a lot of movement happening e.g. a video playing in full screen,
-then we are back to the jarring latency and poor quality stream. This is a theorized outcome so an update will be provided as progress is made. If this is an issue, a hybrid approach 
-is next. Using both segmented processing and full image processing but the ultimate goal is to have a good remote experience.
+The initial screenshot is then split into segments. There on, any changes that occur within a segment, only those
+changes are sent to the client. This achieves really low latency. Transmission by happens at 30fps. There isn't an improvement in quality or performance by lowering/increasing this.
 
 ### User Input
 Keyboard and mouse inputs work. Pretty well and actions scale to the relative positions. There is a bug when using a second screen, if the second screen is shared then the
