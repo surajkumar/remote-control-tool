@@ -45,10 +45,17 @@ public class ScreenRecorder implements Runnable {
         this.watchers = new ArrayList<>();
         this.robot = new Robot();
         this.screenBounds = screenBounds;
-        screenBounds.setRect(0, 0, screenBounds.getWidth() - 2, screenBounds.getHeight() - 2);
-        this.running = false;
         this.visualizer =
-                new RecordingVisualizer(new Dimension(Monitor.getBoundsForMonitor(0).getSize()));
+                new RecordingVisualizer(
+                        new Dimension(screenBounds.getSize()),
+                        (int) screenBounds.getX(),
+                        (int) screenBounds.getY());
+        screenBounds.setRect(
+                screenBounds.getX() + 1,
+                screenBounds.getY() + 1,
+                screenBounds.getWidth() - 2,
+                screenBounds.getHeight() - 2);
+        this.running = false;
         this.grid = new Grid();
     }
 

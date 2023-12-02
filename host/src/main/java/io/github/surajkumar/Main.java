@@ -9,6 +9,8 @@ import io.vertx.core.VertxOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String HOST = System.getenv().getOrDefault("host", "localhost");
@@ -21,8 +23,22 @@ public class Main {
         VertxOptions options = new VertxOptions().setPreferNativeTransport(true);
         Vertx vertx = Vertx.vertx(options);
 
+        int monitor;
+        if (args.length > 0) {
+            try {
+                monitor = Integer.parseInt(args[0]);
+            } catch (Exception e) {
+                monitor = 0;
+                LOGGER.warn("Unknown arg {}, defaulting to monitor 0", Arrays.toString(args));
+            }
+        } else {
+            monitor = 0;
+        }
+
+        monitor = 1;
+
         vertx.deployVerticle(
-                new HostServer(HOST, PORT),
+                new HostServer(HOST, PORT, monitor),
                 res -> {
                     if (res.succeeded()) {
                         LOGGER.info("Server is online");
