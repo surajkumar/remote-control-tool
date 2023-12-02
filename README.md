@@ -41,3 +41,13 @@ There is a base implementation for transferring files from one computer to anoth
 
 ## Contributing
 Everyone interested in the project is welcome to contribute. Just pull the code and create a PR with your changes. Ensure to include some good details on what your PR is.
+
+## Screenshots
+
+![Image of Launch](https://i.imgur.com/svPUgwt.png)
+
+![Image of Launch When Offline](https://i.imgur.com/daFrrka.png)
+
+![Image When Connected](https://i.imgur.com/De8RKop.png)
+
+[Video Preview](https://youtu.be/YuK69U8Tog8)
